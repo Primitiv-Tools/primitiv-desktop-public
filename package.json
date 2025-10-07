@@ -34,7 +34,7 @@
       "icon": "imgs/primitiv_logo_256.png"
     },
     "mac": {
-      "target": "zip",
+      "target": "dmg",
       "icon": "imgs/primitiv_logo.png"
     },
     "linux": {

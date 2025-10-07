@@ -31,20 +31,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create zip archive (Windows)
+      - name: Upload Windows Installer
         if: matrix.os == 'windows-latest'
-        run: powershell -Command "Compress-Archive -Path 'dist/*' -DestinationPath 'build-${{ matrix.os }}.zip'"
-
-      - name: Create zip archive (macOS/Linux)
-        if: matrix.os != 'windows-latest'
-        run: zip -r "build-${{ matrix.os }}.zip" dist/
-
-      - name: Upload release asset
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS Installer
+        if: matrix.os == 'macos-latest'
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./build-${{ matrix.os }}.zip
-          asset_name: Primitiv-Desktop-${{ matrix.os }}.zip
-          asset_content_type: application/zip
+          files: dist/*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux AppImage
+        if: matrix.os == 'ubuntu-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
