@@ -31,12 +31,20 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Create zip archive
+      run: |
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          powershell Compress-Archive -Path "./dist/*" -DestinationPath "./build-${{ matrix.os }}.zip"
+        else
+          zip -r "./build-${{ matrix.os }}.zip" ./dist/
+        fi
+
     - name: Upload release assets
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./dist/
-        asset_name: ${{ matrix.os }}-build.zip
+        asset_path: ./build-${{ matrix.os }}.zip
+        asset_name: Primitiv-Desktop-${{ matrix.os }}.zip
         asset_content_type: application/zip
