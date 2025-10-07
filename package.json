@@ -1,0 +1,40 @@
+{
+  "name": "primitiv-desktop-widget",
+  "version": "1.0.4",
+  "description": "Primitiv Desktop Widget",
+  "author": "Primitiv Tools <humans@primitiv.tools>",
+  "homepage": "https://primitiv.tools",
+  "repository": "Primitiv-Tools/Primitiv_SDx",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist-win": "electron-builder --win",
+    "dist-mac": "electron-builder --mac",
+    "dist-linux": "electron-builder --linux",
+    "dist-all": "electron-builder -mwl",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.primitiv.desktop",
+    "productName": "Primitiv Desktop",
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "zip"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

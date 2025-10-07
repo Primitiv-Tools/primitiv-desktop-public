@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primitiv Widget</title>
+    <link rel="stylesheet" href="widget.css">
+</head>
+<body>
+    <div class="widget" id="widget">
+        <div class="widget-frame">
+            <!-- Top section with logo -->
+            <div class="widget-section widget-top">
+                <img src="imgs/logo_top.svg" alt="Logo" class="icon-logo">
+            </div>
+
+            <!-- Separator line -->
+            <div class="separator-line">
+                <img src="imgs/line_separate.svg" alt="Separator" class="line">
+            </div>
+
+            <!-- Middle section with task icon -->
+            <div class="widget-section widget-middle" id="taskButton">
+                <img src="imgs/task_middle.svg" alt="Tasks" class="icon-task">
+            </div>
+
+            <!-- Separator line (only shown in expanded state) -->
+            <div class="separator-line separator-expanded">
+                <img src="imgs/line_separate.svg" alt="Separator" class="line">
+            </div>
+
+            <!-- Bottom section with grip (only in expanded state) -->
+            <div class="widget-section widget-bottom">
+                <img src="imgs/grip_bottom.svg" alt="Drag" class="icon-grip" id="dragHandle">
+            </div>
+        </div>
+
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="widget.js"></script>
+</body>
+</html>
