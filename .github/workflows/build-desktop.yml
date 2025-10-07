@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
@@ -14,49 +15,36 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: package-lock.json
+      - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
 
-    - name: Build app
-      run: npm run dist
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Create zip archive (Windows)
-      if: matrix.os == 'windows-latest'
-      run: powershell -Command "Compress-Archive -Path './dist/*' -DestinationPath './build-windows-latest.zip'"
+      - name: Build app
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Create zip archive (macOS/Linux)
-      if: matrix.os != 'windows-latest'
-      run: zip -r "./build-${{ matrix.os }}.zip" ./dist/
+      - name: Create zip archive (Windows)
+        if: matrix.os == 'windows-latest'
+        run: powershell -Command "Compress-Archive -Path 'dist/*' -DestinationPath 'build-${{ matrix.os }}.zip'"
 
-    - name: Upload release assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./build-windows-latest.zip
-        asset_name: Primitiv-Desktop-Windows.zip
-        asset_content_type: application/zip
-      if: matrix.os == 'windows-latest'
+      - name: Create zip archive (macOS/Linux)
+        if: matrix.os != 'windows-latest'
+        run: zip -r "build-${{ matrix.os }}.zip" dist/
 
-    - name: Upload release assets (macOS/Linux)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./build-${{ matrix.os }}.zip
-        asset_name: Primitiv-Desktop-${{ matrix.os }}.zip
-        asset_content_type: application/zip
-      if: matrix.os != 'windows-latest'
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./build-${{ matrix.os }}.zip
+          asset_name: Primitiv-Desktop-${{ matrix.os }}.zip
+          asset_content_type: application/zip
