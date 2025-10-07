@@ -3,8 +3,8 @@
   "version": "1.0.4",
   "description": "Primitiv Desktop Widget",
   "author": "Primitiv Tools <humans@primitiv.tools>",
-  "homepage": "https://primitiv.tools",
-  "repository": "Primitiv-Tools/Primitiv_SDx",
+  "homepage": "https://github.com/Primitiv-Tools/primitiv-desktop-public",
+  "repository": "Primitiv-Tools/primitiv-desktop-public",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
