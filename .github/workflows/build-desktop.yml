@@ -31,15 +31,26 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Create zip archive
-      run: |
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          powershell -Command "Compress-Archive -Path './dist/*' -DestinationPath './build-${{ matrix.os }}.zip'"
-        else
-          zip -r "./build-${{ matrix.os }}.zip" ./dist/
-        fi
+    - name: Create zip archive (Windows)
+      if: matrix.os == 'windows-latest'
+      run: powershell -Command "Compress-Archive -Path './dist/*' -DestinationPath './build-windows-latest.zip'"
+
+    - name: Create zip archive (macOS/Linux)
+      if: matrix.os != 'windows-latest'
+      run: zip -r "./build-${{ matrix.os }}.zip" ./dist/
 
     - name: Upload release assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./build-windows-latest.zip
+        asset_name: Primitiv-Desktop-Windows.zip
+        asset_content_type: application/zip
+      if: matrix.os == 'windows-latest'
+
+    - name: Upload release assets (macOS/Linux)
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,3 +59,4 @@ jobs:
         asset_path: ./build-${{ matrix.os }}.zip
         asset_name: Primitiv-Desktop-${{ matrix.os }}.zip
         asset_content_type: application/zip
+      if: matrix.os != 'windows-latest'
