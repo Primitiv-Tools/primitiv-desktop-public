@@ -1,6 +1,6 @@
 {
   "name": "primitiv-desktop-widget",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Primitiv Desktop Widget",
   "author": "Primitiv Tools <humans@primitiv.tools>",
   "license": "MIT",
@@ -28,14 +28,18 @@
   "build": {
     "appId": "com.primitiv.desktop",
     "productName": "Primitiv Desktop",
+    "icon": "imgs/primitiv_logo.png",
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "imgs/primitiv_logo_256.png"
     },
     "mac": {
-      "target": "zip"
+      "target": "zip",
+      "icon": "imgs/primitiv_logo.png"
     },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "icon": "imgs/primitiv_logo_256.png"
     }
   }
 }

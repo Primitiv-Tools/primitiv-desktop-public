@@ -89,6 +89,7 @@ function createWidget() {
     alwaysOnTop: true, // Keep widget on top
     resizable: false,
     skipTaskbar: true, // Don't show in taskbar
+    icon: path.join(__dirname, 'imgs', 'primitiv_logo.png'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -200,6 +201,7 @@ function createMainWindow() {
     maxHeight: 700,
     skipTaskbar: true, // Don't show in taskbar
     show: false, // Don't show initially
+    icon: path.join(__dirname, 'imgs', 'primitiv_logo.png'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
