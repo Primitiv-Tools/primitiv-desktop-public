@@ -34,7 +34,7 @@ jobs:
     - name: Create zip archive
       run: |
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          powershell Compress-Archive -Path "./dist/*" -DestinationPath "./build-${{ matrix.os }}.zip"
+          powershell -Command "Compress-Archive -Path './dist/*' -DestinationPath './build-${{ matrix.os }}.zip'"
         else
           zip -r "./build-${{ matrix.os }}.zip" ./dist/
         fi
