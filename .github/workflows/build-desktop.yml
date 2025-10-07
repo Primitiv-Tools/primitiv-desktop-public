@@ -1,4 +1,4 @@
-name: Build Desktop App for Public Release
+name: Build Desktop App
 
 on:
   release:
@@ -31,35 +31,12 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload Windows installer
-      if: matrix.os == 'windows-latest'
+    - name: Upload release assets
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./dist/Primitiv Desktop Setup.exe
-        asset_name: Primitiv-Desktop-Setup-Windows.exe
-        asset_content_type: application/octet-stream
-
-    - name: Upload macOS installer
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./dist/Primitiv Desktop.dmg
-        asset_name: Primitiv-Desktop-macOS.dmg
-        asset_content_type: application/octet-stream
-
-    - name: Upload Linux installer
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./dist/Primitiv Desktop.AppImage
-        asset_name: Primitiv-Desktop-Linux.AppImage
-        asset_content_type: application/octet-stream
+        asset_path: ./dist/
+        asset_name: ${{ matrix.os }}-build.zip
+        asset_content_type: application/zip

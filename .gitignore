@@ -1,5 +1,4 @@
 # Electron build outputs
-dist/
 build/
 
 # Dependencies
