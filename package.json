@@ -35,7 +35,8 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "imgs/primitiv_logo.png"
+      "icon": "imgs/primitiv_logo.png",
+      "identity": null
     },
     "linux": {
       "target": "AppImage",
