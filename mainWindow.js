@@ -438,10 +438,7 @@ document.addEventListener('click', async (e) => {
 
 // Listen for deep link authentication events from main process
 ipcRenderer.on('auth-completed', async (event, authData) => {
-    console.log('Deep link authentication received:', authData);
-    console.log('Auth service available:', !!authService);
     if (authService) {
-        console.log('Calling handleDeepLinkAuth...');
         const success = await authService.handleDeepLinkAuth(authData);
         if (success) {
             console.log('Authentication completed successfully');

@@ -86,7 +86,7 @@ function createWidget() {
     y: Math.floor((height - widgetHeight) / 2),
     frame: false, // Remove window frame
     transparent: true, // Make window transparent
-    alwaysOnTop: true, // Keep widget on top
+    // Removed alwaysOnTop to allow normal window behavior
     resizable: false,
     skipTaskbar: true, // Don't show in taskbar
     icon: path.join(__dirname, 'imgs', 'primitiv_logo.png'),
@@ -99,8 +99,7 @@ function createWidget() {
 
   widgetWindow.loadFile('widget.html');
 
-  // Prevent window from being hidden when clicked outside
-  widgetWindow.setAlwaysOnTop(true, 'floating');
+  // Widget now follows normal window behavior
 
   // Set minimum size to prevent issues
   widgetWindow.setMinimumSize(widgetWidth, widgetHeight);
@@ -193,7 +192,7 @@ function createMainWindow() {
     y: height - finalHeight - 20,
     frame: false, // Remove window frame
     transparent: true, // Make window transparent
-    alwaysOnTop: true, // Keep main window on top
+    // Removed alwaysOnTop to allow normal window behavior
     resizable: true, // Allow user to resize (needed for CSS resize to work)
     minWidth: 400, // Enforce minimum dimensions
     minHeight: 300,
@@ -711,7 +710,6 @@ function handleDeepLink(commandLine) {
       const userData = urlObj.searchParams.get('user_data');
       
       if (accessToken && refreshToken) {
-        console.log('Token authentication via deep link');
         
         // Ensure main window is focused
         if (mainWindow) {
@@ -727,7 +725,6 @@ function handleDeepLink(commandLine) {
             userData: userData ? JSON.parse(decodeURIComponent(userData)) : null
           };
           
-          console.log('Sending auth data to renderer:', authData);
           mainWindow.webContents.send('auth-completed', authData);
         }
       }
