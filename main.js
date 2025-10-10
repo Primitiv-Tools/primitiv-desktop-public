@@ -13,16 +13,17 @@ if (!gotTheLock) {
   // Handle second instance attempts - official Electron pattern
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     console.log('Second instance detected, focusing existing windows');
-    
-    // Focus existing windows
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
+
+    // Focus widget window first (parent), then main window
     if (widgetWindow && !widgetWindow.isDestroyed()) {
       widgetWindow.focus();
     }
-    
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
+
     // Handle deep link if present
     const url = commandLine.find(arg => arg.startsWith('primitiv-desktop://'));
     if (url) {
@@ -88,7 +89,7 @@ function createWidget() {
     transparent: true, // Make window transparent
     // Removed alwaysOnTop to allow normal window behavior
     resizable: false,
-    skipTaskbar: true, // Don't show in taskbar
+    skipTaskbar: false, // Show in taskbar as the main application window
     icon: path.join(__dirname, 'imgs', 'primitiv_logo.png'),
     webPreferences: {
       nodeIntegration: true,
@@ -198,7 +199,8 @@ function createMainWindow() {
     minHeight: 300,
     maxWidth: 900, // Enforce maximum dimensions
     maxHeight: 700,
-    skipTaskbar: true, // Don't show in taskbar
+    parent: widgetWindow, // Set widget as parent to group windows together
+    skipTaskbar: true, // Don't show in taskbar (parent window handles this)
     show: false, // Don't show initially
     icon: path.join(__dirname, 'imgs', 'primitiv_logo.png'),
     webPreferences: {
@@ -451,6 +453,11 @@ ipcMain.on('show-main-window', (event, x, y) => {
     mainWindow.show();
     mainWindow.focus();
 
+    // Also focus the parent widget window to ensure both are in focus
+    if (widgetWindow && !widgetWindow.isDestroyed()) {
+      widgetWindow.focus();
+    }
+
     // Notify mainWindow that it was shown (for positioning only, no sync)
     mainWindow.webContents.send('main-window-shown');
   } else {
@@ -597,26 +604,27 @@ ipcMain.on('wake-up', () => {
 
 function wakeUp() {
   console.log('Waking up from sleep mode');
-  
+
   isSleeping = false;
-  
+
   // Clear sleep timer
   if (sleepTimer) {
     clearInterval(sleepTimer);
     sleepTimer = null;
   }
-  
-  // Restore widget opacity
+
+  // Restore widget opacity and focus it first (parent window)
   if (widgetWindow && !widgetWindow.isDestroyed()) {
     widgetWindow.setOpacity(1.0);
+    widgetWindow.focus();
   }
-  
+
   // Show main window when waking up
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.show();
     mainWindow.focus();
   }
-  
+
   // Send wake up message to windows
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('sleep-mode-ended');
@@ -634,8 +642,10 @@ ipcMain.on('show-main-window-with-view', (event, x, y, view) => {
     mainWindow.show();
     mainWindow.focus();
 
-    // Notify widget that dropdown is now visible
+    // Also focus the parent widget window to ensure both are in focus
     if (widgetWindow && !widgetWindow.isDestroyed()) {
+      widgetWindow.focus();
+      // Notify widget that dropdown is now visible
       widgetWindow.webContents.send('dropdown-shown');
     }
 

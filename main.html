@@ -239,7 +239,8 @@
                     <div class="modal-content-area">
                         <!-- Notes Section -->
                         <div class="notes-section">
-                            <div class="task-detail-notes" contenteditable="true" data-placeholder="Write notes or context related to this task..."></div>
+                            <div class="task-detail-notes" data-placeholder="Write notes or context related to this task..." data-notes-display></div>
+                            <textarea class="task-detail-notes-textarea" data-notes-textarea style="display: none;" placeholder="Write notes or context related to this task..."></textarea>
                         </div>
 
                         <!-- Suggested Actions Section -->
@@ -260,6 +261,16 @@
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M12 3L13.5 8.5L19 10L13.5 11.5L12 17L10.5 11.5L5 10L10.5 8.5L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         <path d="M19 4L19.5 6L21.5 6.5L19.5 7L19 9L18.5 7L16.5 6.5L18.5 6L19 4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </button>
+                            <button class="save-notes-button" data-save-notes style="display: none;">
+                                <div class="save-notes-text">Save Notes</div>
+                                <div class="save-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <polyline points="17 21 17 13 7 13 7 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <polyline points="7 3 7 8 15 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                 </div>
                             </button>

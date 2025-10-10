@@ -1293,6 +1293,9 @@ function setupTaskDetailView() {
     const taskDetailBackBtn = document.querySelector('.task-detail-view .task-icon-container');
     if (taskDetailBackBtn) {
         taskDetailBackBtn.addEventListener('click', () => {
+            // Reset edit mode before going back
+            exitNotesEditMode(false);
+
             const authenticatedState = document.querySelector('[data-auth-state="authenticated"]');
             if (authenticatedState) {
                 authenticatedState.classList.remove('show-new-task', 'show-task-detail');
@@ -1472,6 +1475,172 @@ function setupTaskDetailView() {
             }
         });
     }
+
+    // Setup click-to-edit functionality for notes
+    setupNotesEditMode();
+
+    // Save notes button handler
+    const saveNotesBtn = document.querySelector('[data-save-notes]');
+    if (saveNotesBtn) {
+        saveNotesBtn.addEventListener('click', async () => {
+            await saveTaskNotes();
+        });
+    }
+}
+
+// Setup notes edit mode
+function setupNotesEditMode() {
+    const notesDisplay = document.querySelector('[data-notes-display]');
+    const notesTextarea = document.querySelector('[data-notes-textarea]');
+    const saveNotesBtn = document.querySelector('[data-save-notes]');
+
+    if (notesDisplay && notesTextarea) {
+        // Click on display to enter edit mode
+        notesDisplay.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent document click handler from firing
+            enterNotesEditMode();
+        });
+
+        // Prevent clicks on textarea from closing edit mode
+        notesTextarea.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent document click handler from firing
+        });
+
+        // Handle escape key to cancel editing
+        notesTextarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                exitNotesEditMode(false);
+            }
+        });
+
+        // Handle click outside to exit edit mode
+        document.addEventListener('click', (e) => {
+            // Check if we're in edit mode
+            if (notesTextarea.style.display === 'block') {
+                // If click is outside the notes area and save button, exit edit mode
+                const notesSection = notesTextarea.closest('.notes-section');
+                const isClickInside = notesSection?.contains(e.target) || saveNotesBtn?.contains(e.target);
+
+                if (!isClickInside) {
+                    exitNotesEditMode(false);
+                }
+            }
+        });
+    }
+}
+
+// Enter notes edit mode
+function enterNotesEditMode() {
+    const notesDisplay = document.querySelector('[data-notes-display]');
+    const notesTextarea = document.querySelector('[data-notes-textarea]');
+    const saveNotesBtn = document.querySelector('[data-save-notes]');
+
+    if (notesDisplay && notesTextarea) {
+        // Copy content from display to textarea
+        notesTextarea.value = notesDisplay.textContent;
+
+        // Store original content for cancel operation
+        notesTextarea.dataset.originalContent = notesDisplay.textContent;
+
+        // Hide display, show textarea
+        notesDisplay.style.display = 'none';
+        notesTextarea.style.display = 'block';
+
+        // Show save button
+        if (saveNotesBtn) {
+            saveNotesBtn.style.display = 'flex';
+        }
+
+        // Focus textarea and move cursor to start
+        notesTextarea.focus();
+        notesTextarea.setSelectionRange(0, 0);
+        notesTextarea.scrollTop = 0; // Scroll to top of textarea
+    }
+}
+
+// Exit notes edit mode
+function exitNotesEditMode(saved = false) {
+    const notesDisplay = document.querySelector('[data-notes-display]');
+    const notesTextarea = document.querySelector('[data-notes-textarea]');
+    const saveNotesBtn = document.querySelector('[data-save-notes]');
+
+    // Only proceed if elements exist
+    if (!notesDisplay || !notesTextarea) {
+        return;
+    }
+
+    // If not saved, revert to original content
+    if (!saved) {
+        const originalContent = notesTextarea.dataset.originalContent || '';
+        notesDisplay.textContent = originalContent;
+    }
+
+    // Show display, hide textarea
+    notesDisplay.style.display = 'block';
+    notesTextarea.style.display = 'none';
+
+    // Clear the textarea value to prevent carryover
+    notesTextarea.value = '';
+
+    // Clear the stored original content
+    delete notesTextarea.dataset.originalContent;
+
+    // Hide save button
+    if (saveNotesBtn) {
+        saveNotesBtn.style.display = 'none';
+    }
+}
+
+// Save task notes
+async function saveTaskNotes() {
+    const taskId = document.querySelector('.task-detail-view').dataset.taskId;
+    const notesTextarea = document.querySelector('[data-notes-textarea]');
+    const notesDisplay = document.querySelector('[data-notes-display]');
+    const saveNotesBtn = document.querySelector('[data-save-notes]');
+
+    if (!taskId || !notesTextarea) return;
+
+    try {
+        // Set loading state
+        if (saveNotesBtn) {
+            saveNotesBtn.disabled = true;
+            saveNotesBtn.classList.add('loading');
+            const saveText = saveNotesBtn.querySelector('.save-notes-text');
+            if (saveText) saveText.textContent = 'Saving...';
+        }
+
+        // Prepare task data with notes/description
+        // Note: The backend expects 'context_string' field, not 'description'
+        const taskData = {
+            context_string: notesTextarea.value.trim()
+        };
+
+        // Update task via API
+        if (apiClient) {
+            await apiClient.updateTask(taskId, taskData);
+            console.log('Task notes updated successfully');
+
+            // Update display with new content
+            if (notesDisplay) {
+                notesDisplay.textContent = notesTextarea.value.trim();
+            }
+
+            // Exit edit mode
+            exitNotesEditMode(true);
+        }
+
+    } catch (error) {
+        console.error('Failed to update task notes:', error);
+        alert('Failed to save notes. Please try again.');
+    } finally {
+        // Reset button state
+        if (saveNotesBtn) {
+            saveNotesBtn.disabled = false;
+            saveNotesBtn.classList.remove('loading');
+            const saveText = saveNotesBtn.querySelector('.save-notes-text');
+            if (saveText) saveText.textContent = 'Save Notes';
+        }
+    }
 }
 
 async function showTaskDetail(taskId) {
@@ -1480,6 +1649,9 @@ async function showTaskDetail(taskId) {
             console.error('API client not available');
             return;
         }
+
+        // Reset edit mode before showing new task
+        exitNotesEditMode(false);
 
         // Show the task detail view immediately with skeleton loading
         const authenticatedState = document.querySelector('[data-auth-state="authenticated"]');
@@ -1623,11 +1795,11 @@ function populateTaskDetailView(task) {
         titleInput.value = task.title || task.task || task.text || task.description || '';
     }
 
-    // Populate notes
-    const notesDiv = taskDetailView.querySelector('.task-detail-notes');
-    if (notesDiv) {
+    // Populate notes (use the display div, not the textarea)
+    const notesDisplay = taskDetailView.querySelector('[data-notes-display]');
+    if (notesDisplay) {
         const content = task.description || task.notes || task.context || '';
-        notesDiv.textContent = content;
+        notesDisplay.textContent = content;
     }
 
     // Populate due date

@@ -710,6 +710,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
 }
 
 .participants-container {
@@ -975,6 +976,43 @@ body {
     pointer-events: none;
 }
 
+/* Task detail notes textarea (for editing) */
+.task-detail-notes-textarea {
+    width: 100%;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    font-family: 'Figtree', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #464646;
+    background: transparent;
+    outline: none;
+    transition: all 200ms ease;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    text-align: left;
+    resize: vertical;
+    min-height: 100px;
+    /* Hide scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.task-detail-notes-textarea::-webkit-scrollbar {
+    display: none; /* WebKit browsers (Chrome, Safari, Edge) */
+}
+
+.task-detail-notes-textarea:focus {
+    color: #464646;
+    background: transparent;
+}
+
+.task-detail-notes-textarea::placeholder {
+    color: #9099AA;
+}
+
 /* Suggested Actions Section */
 .suggested-actions-section {
     width: 100%;
@@ -1130,7 +1168,8 @@ body {
 
 .save-task-button,
 .edit-task-button,
-.complete-task-button {
+.complete-task-button,
+.save-notes-button {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1148,7 +1187,8 @@ body {
 }
 
 .save-task-button:hover,
-.edit-task-button:hover {
+.edit-task-button:hover,
+.save-notes-button:hover {
     background: #F8F9FA;
     border-color: #D1D5DB;
 }
@@ -1160,19 +1200,22 @@ body {
 
 .save-text,
 .edit-text,
-.complete-text {
+.complete-text,
+.save-notes-text {
     font-family: inherit;
 }
 
 .edit-icon,
-.checkmark-icon {
+.checkmark-icon,
+.save-icon {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .edit-icon svg,
-.checkmark-icon svg {
+.checkmark-icon svg,
+.save-icon svg {
     width: 16px;
     height: 16px;
 }
@@ -1180,14 +1223,16 @@ body {
 /* Loading states for buttons */
 .save-task-button.loading,
 .edit-task-button.loading,
-.complete-task-button.loading {
+.complete-task-button.loading,
+.save-notes-button.loading {
     opacity: 0.7;
     cursor: not-allowed;
 }
 
 .save-task-button.loading .save-text,
 .edit-task-button.loading .edit-text,
-.complete-task-button.loading .complete-text {
+.complete-task-button.loading .complete-text,
+.save-notes-button.loading .save-notes-text {
     opacity: 0.7;
 }
 
