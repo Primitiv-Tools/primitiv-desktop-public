@@ -12,6 +12,9 @@ let initialWindowX = 0;
 let initialWindowY = 0;
 let justFinishedDragging = false;
 
+// Task drag and drop handler (to prevent duplicate event listeners)
+let currentDragHandler = null;
+
 // Initialize dragging functionality
 function initializeDragging() {
     const draggableArea = document.querySelector('[data-draggable-area]');
@@ -670,12 +673,17 @@ async function deleteTask(taskId) {
 // ===== DRAG AND DROP FUNCTIONALITY =====
 
 function setupTaskDragAndDrop() {
+    // Remove existing drag handler if present (prevents duplicate placeholders)
+    if (currentDragHandler) {
+        document.removeEventListener('mousedown', currentDragHandler);
+    }
+
     let draggedTask = null;
     let draggedTaskData = null;
     let dropPlaceholder = null;
 
     // Handle grab button mousedown to initiate drag
-    document.addEventListener('mousedown', (event) => {
+    currentDragHandler = (event) => {
         const grabBtn = event.target.closest('[data-action="grab"]');
         if (!grabBtn) return;
 
@@ -705,7 +713,7 @@ function setupTaskDragAndDrop() {
         dropPlaceholder.className = 'task-row-placeholder';
         dropPlaceholder.style.height = taskRow.offsetHeight + 'px';
         dropPlaceholder.style.backgroundColor = '#e0e0e0';
-        dropPlaceholder.style.border = '2px dashed #999';
+        dropPlaceholder.style.border = '1px dashed #999';
         dropPlaceholder.style.marginBottom = '8px';
         dropPlaceholder.style.borderRadius = '8px';
 
@@ -750,15 +758,15 @@ function setupTaskDragAndDrop() {
             if (newPositionIndex < currentIndex) {
                 // Moving up = higher priority
                 priorityText = 'Higher Priority';
-                placeholderBgColor = '#e3f2fd'; // Light blue background
-                placeholderBorderColor = '#64b5f6'; // Light blue border
-                placeholderTextColor = '#1976d2'; // Blue text
+                placeholderBgColor = '#FEF8ED';
+                placeholderBorderColor = '#FA7E73';
+                placeholderTextColor = '#BE4E44';
             } else if (newPositionIndex > currentIndex) {
                 // Moving down = lower priority
                 priorityText = 'Lower Priority';
-                placeholderBgColor = '#ffebee'; // Light red background
-                placeholderBorderColor = '#ef5350'; // Light red border
-                placeholderTextColor = '#c62828'; // Red text
+                placeholderBgColor = '#F8FBFF';
+                placeholderBorderColor = '#559FFF';
+                placeholderTextColor = '#2A72D1';
             } else {
                 // Same position
                 priorityText = 'Same Priority';
@@ -772,8 +780,11 @@ function setupTaskDragAndDrop() {
               align-items: center;
               justify-content: center;
               height: 100%;
-              font-size: 14px;
-              font-weight: 500;
+              font-family: Figtree;
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
               color: ${placeholderTextColor};
             ">${priorityText}</div>`;
 
@@ -863,7 +874,10 @@ function setupTaskDragAndDrop() {
         // Attach document-level event listeners
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
-    });
+    };
+
+    // Add the new handler
+    document.addEventListener('mousedown', currentDragHandler);
 }
 
 async function updateTaskPriority(taskId, newRicu, taskElement) {
