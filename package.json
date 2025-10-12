@@ -1,6 +1,6 @@
 {
   "name": "primitiv-desktop-widget",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Primitiv Desktop Widget",
   "author": "Primitiv Tools <humans@primitiv.tools>",
   "license": "MIT",
@@ -36,7 +36,14 @@
     "mac": {
       "target": "dmg",
       "icon": "imgs/primitiv_logo.png",
-      "identity": null
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "notarize": {
+        "teamId": "2TGXL5UR2Y"
+      }
     },
     "linux": {
       "target": "AppImage",
