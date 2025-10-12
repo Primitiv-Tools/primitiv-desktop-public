@@ -1,4 +1,5 @@
 const { app, BrowserWindow, screen, ipcMain, protocol } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 
 // Prevent multiple instances - following official Electron pattern
@@ -702,46 +703,46 @@ function handleDeepLink(commandLine) {
   }
 
   console.log('Deep link received:', url);
-  
+
   try {
     const urlObj = new URL(url);
     console.log('Parsed URL - hostname:', urlObj.hostname);
     console.log('Parsed URL - pathname:', urlObj.pathname);
     console.log('Parsed URL - searchParams:', Object.fromEntries(urlObj.searchParams));
-    
+
     // Check if this is an auth-success URL (either in hostname or pathname)
-    const isAuthSuccess = urlObj.hostname === 'auth-success' || 
-                         urlObj.pathname === '/auth-success' || 
+    const isAuthSuccess = urlObj.hostname === 'auth-success' ||
+                         urlObj.pathname === '/auth-success' ||
                          urlObj.pathname === '/auth-success/';
-    
+
     if (isAuthSuccess) {
       const accessToken = urlObj.searchParams.get('access_token');
       const refreshToken = urlObj.searchParams.get('refresh_token');
       const userData = urlObj.searchParams.get('user_data');
-      
+
       if (accessToken && refreshToken) {
-        
+
         // Ensure main window is focused
         if (mainWindow) {
           if (mainWindow.isMinimized()) {
             mainWindow.restore();
           }
           mainWindow.focus();
-          
+
           // Send auth data to renderer process
           const authData = {
             accessToken,
             refreshToken,
             userData: userData ? JSON.parse(decodeURIComponent(userData)) : null
           };
-          
+
           mainWindow.webContents.send('auth-completed', authData);
         }
       }
     } else if (urlObj.pathname === '/auth-error') {
       const error = urlObj.searchParams.get('error');
       console.log('Authentication failed via deep link:', error);
-      
+
       // Send error to renderer process
       if (mainWindow) {
         mainWindow.webContents.send('auth-error', { error });
@@ -752,17 +753,89 @@ function handleDeepLink(commandLine) {
   }
 }
 
+// Configure auto-updater
+function setupAutoUpdater() {
+  // Configure logging
+  autoUpdater.logger = require('electron-log');
+  autoUpdater.logger.transports.file.level = 'info';
+
+  // Don't automatically download updates - let user decide
+  autoUpdater.autoDownload = false;
+
+  console.log('Auto-updater configured');
+
+  // Check for updates on startup (after 3 seconds delay)
+  setTimeout(() => {
+    if (!process.argv.includes('--dev')) {
+      console.log('Checking for updates...');
+      autoUpdater.checkForUpdates();
+    }
+  }, 3000);
+
+  // Auto-updater events
+  autoUpdater.on('checking-for-update', () => {
+    console.log('Checking for updates...');
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    console.log('Update available:', info.version);
+    // Notify main window about available update
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-available', info);
+    }
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('Update not available. Current version is the latest.');
+  });
+
+  autoUpdater.on('error', (err) => {
+    console.error('Error in auto-updater:', err);
+  });
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    console.log(`Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}%`);
+    // Notify main window about download progress
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-download-progress', progressObj);
+    }
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('Update downloaded:', info.version);
+    // Notify main window that update is ready to install
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-downloaded', info);
+    }
+  });
+}
+
+// Handle IPC for downloading update
+ipcMain.on('download-update', () => {
+  console.log('User requested update download');
+  autoUpdater.downloadUpdate();
+});
+
+// Handle IPC for installing update
+ipcMain.on('install-update', () => {
+  console.log('User requested update installation');
+  autoUpdater.quitAndInstall(false, true);
+});
+
 app.whenReady().then(() => {
   // Register deep link protocol first
   registerDeepLinkProtocol();
-  
+
+  // Setup auto-updater
+  setupAutoUpdater();
+
   // Clean up any existing widgets first
   cleanupWidgets();
 
   createWidget();
   createMainWindow();
   // createSettingsWindow(); // Settings now embedded in mainWindow
-  
+
   // Ensure widget stays in bounds when screen changes
   screen.on('display-metrics-changed', () => {
     ensureWidgetInBounds();

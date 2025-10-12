@@ -470,7 +470,66 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupTaskDetailView();
     initializeDragging();
     setupSettings();
+    setupUpdateHandlers();
 });
+
+// ===== AUTO-UPDATE FUNCTIONALITY =====
+
+function setupUpdateHandlers() {
+    const updateBanner = document.querySelector('[data-update-banner]');
+    const updateMessage = document.querySelector('[data-update-message]');
+    const updateButton = document.querySelector('[data-update-action]');
+    const updateProgress = document.querySelector('[data-update-progress]');
+    const progressBar = document.querySelector('[data-progress-bar]');
+
+    // Listen for update available
+    ipcRenderer.on('update-available', (event, info) => {
+        console.log('Update available:', info.version);
+
+        if (updateBanner && updateMessage && updateButton) {
+            updateMessage.textContent = `Version ${info.version} is available!`;
+            updateButton.textContent = 'Download';
+            updateButton.style.display = 'block';
+            updateBanner.style.display = 'flex';
+
+            // Handle download button click
+            updateButton.onclick = () => {
+                ipcRenderer.send('download-update');
+                updateButton.disabled = true;
+                updateButton.textContent = 'Downloading...';
+            };
+        }
+    });
+
+    // Listen for download progress
+    ipcRenderer.on('update-download-progress', (event, progressObj) => {
+        console.log(`Download progress: ${progressObj.percent}%`);
+
+        if (updateMessage && updateProgress && progressBar) {
+            updateMessage.textContent = `Downloading update: ${Math.round(progressObj.percent)}%`;
+            updateProgress.style.display = 'flex';
+            progressBar.style.width = `${progressObj.percent}%`;
+        }
+    });
+
+    // Listen for update downloaded
+    ipcRenderer.on('update-downloaded', (event, info) => {
+        console.log('Update downloaded:', info.version);
+
+        if (updateBanner && updateMessage && updateButton && updateProgress) {
+            updateMessage.textContent = 'Update ready to install!';
+            updateButton.textContent = 'Restart & Install';
+            updateButton.disabled = false;
+            updateButton.style.display = 'block';
+            updateProgress.style.display = 'none';
+
+            // Handle install button click
+            updateButton.onclick = () => {
+                ipcRenderer.send('install-update');
+            };
+        }
+    });
+}
 
 // Listen for main window being shown (for positioning only)
 ipcRenderer.on('main-window-shown', async () => {
