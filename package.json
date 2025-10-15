@@ -1,6 +1,6 @@
 {
   "name": "primitiv-desktop-widget",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Primitiv Desktop Widget",
   "author": "Primitiv Tools <humans@primitiv.tools>",
   "license": "MIT",
@@ -30,6 +30,11 @@
     "appId": "com.primitiv.desktop",
     "productName": "Primitiv Desktop",
     "icon": "imgs/primitiv_logo.png",
+    "publish": {
+      "provider": "github",
+      "owner": "Primitiv-Tools",
+      "repo": "primitiv-desktop-public"
+    },
     "win": {
       "target": "nsis",
       "icon": "imgs/primitiv_logo_256.png"
