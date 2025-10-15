@@ -1064,9 +1064,8 @@ body {
     font-weight: 400;
     color: #4A5565;
     flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
     line-height: 20px;
     text-align: left;
     margin-right: 8px;
